@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowDown, ArrowUp, Bitcoin, DollarSign, EclipseIcon as Ethereum, Wallet } from "lucide-react"
@@ -5,6 +8,16 @@ import { PriceChart } from "@/components/price-chart"
 import { AssetTable } from "@/components/asset-table"
 
 export default function DashboardPage() {
+  const [currentPrice, setCurrentPrice] = useState(103636.1)
+
+  // Handler for price updates from the chart
+  const handlePriceUpdate = (price) => {
+    setCurrentPrice(price)
+  }
+
+  // Calculate Bitcoin value based on current price
+  const bitcoinValue = 0.75 * currentPrice
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -21,7 +34,7 @@ export default function DashboardPage() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$45,231.89</div>
+              <div className="text-2xl font-bold">${(bitcoinValue + 12875.75 + 3000).toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">+20.1% from last month</p>
             </CardContent>
           </Card>
@@ -31,7 +44,7 @@ export default function DashboardPage() {
               <Bitcoin className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$50,917.84</div>
+              <div className="text-2xl font-bold">${bitcoinValue.toLocaleString()}</div>
               <div className="flex items-center text-xs text-green-500">
                 <ArrowUp className="mr-1 h-3 w-3" />
                 +4.3%
@@ -78,7 +91,7 @@ export default function DashboardPage() {
                 <CardDescription>Your asset performance over the last 30 days</CardDescription>
               </CardHeader>
               <CardContent className="h-[300px]">
-                <PriceChart />
+                <PriceChart onPriceUpdate={handlePriceUpdate} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -89,7 +102,7 @@ export default function DashboardPage() {
                 <CardDescription>A list of your crypto holdings</CardDescription>
               </CardHeader>
               <CardContent>
-                <AssetTable />
+                <AssetTable currentPrice={currentPrice} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -120,7 +133,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-medium">{i % 2 === 0 ? "+0.05 BTC" : "-1.25 ETH"}</p>
-                        <p className="text-xs text-muted-foreground">{i % 2 === 0 ? "$1,950.00" : "$2,375.25"}</p>
+                        <p className="text-xs text-muted-foreground">{i % 2 === 0 ? "$5,181.81" : "$2,375.25"}</p>
                       </div>
                     </div>
                   ))}

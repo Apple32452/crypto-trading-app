@@ -1,37 +1,63 @@
 "use client"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useEffect, useState } from "react"
 
-// Mock data for recent trades
-const generateRecentTrades = () => {
-  const trades = []
-  const basePrice = 67890.45
-  const now = new Date()
+export function RecentTrades({ currentPrice = 103636.1 }) {
+  const [trades, setTrades] = useState([])
 
-  for (let i = 0; i < 15; i++) {
-    const isBuy = Math.random() > 0.5
-    const priceChange = Math.random() * 20 - 10
-    const price = basePrice + priceChange
-    const amount = Math.random() * 0.5
+  // Generate recent trades based on current price
+  useEffect(() => {
+    const generateRecentTrades = () => {
+      const newTrades = []
+      const basePrice = currentPrice
+      const now = new Date()
 
-    const tradeTime = new Date(now)
-    tradeTime.setSeconds(now.getSeconds() - i * 30)
+      for (let i = 0; i < 15; i++) {
+        const isBuy = Math.random() > 0.5
+        const priceChange = Math.random() * basePrice * 0.0002 - basePrice * 0.0001
+        const price = basePrice + priceChange
+        const amount = Math.random() * 0.5
 
-    trades.push({
-      price,
-      amount,
-      total: price * amount,
-      time: tradeTime,
-      type: isBuy ? "buy" : "sell",
-    })
-  }
+        const tradeTime = new Date(now)
+        tradeTime.setSeconds(now.getSeconds() - i * 30)
 
-  return trades
-}
+        newTrades.push({
+          price,
+          amount,
+          total: price * amount,
+          time: tradeTime,
+          type: isBuy ? "buy" : "sell",
+        })
+      }
 
-const recentTrades = generateRecentTrades()
+      setTrades(newTrades)
+    }
 
-export function RecentTrades() {
+    generateRecentTrades()
+
+    // Update trades every 10 seconds
+    const intervalId = setInterval(() => {
+      const isBuy = Math.random() > 0.5
+      const priceChange = Math.random() * currentPrice * 0.0002 - currentPrice * 0.0001
+      const price = currentPrice + priceChange
+      const amount = Math.random() * 0.5
+
+      setTrades((prev) => [
+        {
+          price,
+          amount,
+          total: price * amount,
+          time: new Date(),
+          type: isBuy ? "buy" : "sell",
+        },
+        ...prev.slice(0, -1),
+      ])
+    }, 10000)
+
+    return () => clearInterval(intervalId)
+  }, [currentPrice])
+
   return (
     <Table>
       <TableHeader>
@@ -42,7 +68,7 @@ export function RecentTrades() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {recentTrades.map((trade, index) => (
+        {trades.map((trade, index) => (
           <TableRow key={index}>
             <TableCell className={trade.type === "buy" ? "text-green-500" : "text-red-500"}>
               {trade.price.toFixed(2)}

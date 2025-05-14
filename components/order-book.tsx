@@ -1,52 +1,59 @@
 "use client"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useEffect, useState } from "react"
 
-// Mock data for the order book
-const generateOrderBook = () => {
-  const asks = []
-  const bids = []
+export function OrderBook({ currentPrice = 103636.1 }) {
+  const [asks, setAsks] = useState([])
+  const [bids, setBids] = useState([])
 
-  const basePrice = 67890.45
+  // Generate order book based on current price
+  useEffect(() => {
+    const generateOrderBook = () => {
+      const newAsks = []
+      const newBids = []
 
-  // Generate asks (sell orders)
-  for (let i = 1; i <= 8; i++) {
-    const price = basePrice + i * 15
-    const amount = Math.random() * 2
-    const total = price * amount
+      const basePrice = currentPrice
 
-    asks.push({
-      price,
-      amount,
-      total,
-    })
-  }
+      // Generate asks (sell orders)
+      for (let i = 1; i <= 8; i++) {
+        const price = basePrice + i * basePrice * 0.0001
+        const amount = Math.random() * 2
+        const total = price * amount
 
-  // Generate bids (buy orders)
-  for (let i = 1; i <= 8; i++) {
-    const price = basePrice - i * 12
-    const amount = Math.random() * 2
-    const total = price * amount
+        newAsks.push({
+          price,
+          amount,
+          total,
+        })
+      }
 
-    bids.push({
-      price,
-      amount,
-      total,
-    })
-  }
+      // Generate bids (buy orders)
+      for (let i = 1; i <= 8; i++) {
+        const price = basePrice - i * basePrice * 0.0001
+        const amount = Math.random() * 2
+        const total = price * amount
 
-  // Sort asks in ascending order (lowest first)
-  asks.sort((a, b) => a.price - b.price)
+        newBids.push({
+          price,
+          amount,
+          total,
+        })
+      }
 
-  // Sort bids in descending order (highest first)
-  bids.sort((a, b) => b.price - a.price)
+      // Sort asks in ascending order (lowest first)
+      newAsks.sort((a, b) => a.price - b.price)
 
-  return { asks, bids }
-}
+      // Sort bids in descending order (highest first)
+      newBids.sort((a, b) => b.price - a.price)
 
-const { asks, bids } = generateOrderBook()
+      setAsks(newAsks)
+      setBids(newBids)
+    }
 
-export function OrderBook() {
+    generateOrderBook()
+  }, [currentPrice])
+
   return (
     <div className="space-y-4">
       <div>
@@ -72,8 +79,8 @@ export function OrderBook() {
       </div>
 
       <div className="py-2 px-4 bg-muted rounded-md flex justify-between items-center">
-        <span className="text-lg font-bold">67,890.45</span>
-        <span className="text-xs text-muted-foreground">$67,890.45</span>
+        <span className="text-lg font-bold">{currentPrice.toLocaleString()}</span>
+        <span className="text-xs text-muted-foreground">${currentPrice.toLocaleString()}</span>
       </div>
 
       <div>

@@ -3,10 +3,10 @@
 import { useEffect, useState, useRef, useCallback } from "react"
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts"
 
-// Initial price based on our previous mock data
-const INITIAL_PRICE = 67890.45
+// Updated to current Bitcoin price
+const INITIAL_PRICE = 103636.1
 
-export function PriceChart({ timeframe = "1H" }) {
+export function PriceChart({ timeframe = "1H", onPriceUpdate = null }) {
   const [data, setData] = useState([])
   const [currentPrice, setCurrentPrice] = useState(INITIAL_PRICE)
   const [priceChange, setPriceChange] = useState(0)
@@ -80,8 +80,14 @@ export function PriceChart({ timeframe = "1H" }) {
     }
 
     setData(newData)
-    setCurrentPrice(Number.parseFloat(basePrice.toFixed(2)))
-  }, [timeframe])
+    const finalPrice = Number.parseFloat(basePrice.toFixed(2))
+    setCurrentPrice(finalPrice)
+
+    // Notify parent component of price update
+    if (onPriceUpdate) {
+      onPriceUpdate(finalPrice)
+    }
+  }, [timeframe, onPriceUpdate])
 
   // Simulate WebSocket connection for real-time price updates
   useEffect(() => {
@@ -107,6 +113,11 @@ export function PriceChart({ timeframe = "1H" }) {
       setCurrentPrice(newPrice)
       setPriceChange(percentChange)
 
+      // Notify parent component of price update
+      if (onPriceUpdate) {
+        onPriceUpdate(newPrice)
+      }
+
       // Update chart data
       setData((prevData) => {
         const now = new Date().toISOString()
@@ -130,7 +141,7 @@ export function PriceChart({ timeframe = "1H" }) {
         clearInterval(wsRef.current)
       }
     }
-  }, [generateInitialData])
+  }, [currentPrice, generateInitialData, onPriceUpdate])
 
   // Format time label based on timeframe
   const formatTimeLabel = (time) => {
